@@ -1,9 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import './ProductList.css'
 import CartItem from './CartItem';
+
+import { useSelector, useDispatch } from 'react-redux';
+import { addItem } from './CartSlice';
+
+
 function ProductList() {
     const [showCart, setShowCart] = useState(false);
     const [showPlants, setShowPlants] = useState(false); // State to control the visibility of the About Us page
+    const [addedToCart, setAddedToCart] = useState({});
+
+    const cart = useSelector(state => state.cart.items);
 
     const plantsArray = [
         {
@@ -236,6 +244,19 @@ function ProductList() {
         textDecoration: 'none',
     }
 
+    const dispatch = useDispatch();
+
+    const handleAddToCart = (plant) => {
+        dispatch(addItem(plant));
+        setAddedToCart((prevState) => ({
+            ...prevState,
+            [plant.name]: true,
+        }));
+        console.log(cart.some(
+            cartPlant => cartPlant.name === plant.name
+        ));
+    }
+
     const handleCartClick = (e) => {
         e.preventDefault();
         setShowCart(true); // Set showCart to true when cart icon is clicked
@@ -252,6 +273,20 @@ function ProductList() {
         setShowCart(false);
     };
 
+    const calculateNumberOfPlants = () => {
+        let numberOfPlants = 0;
+        cart.forEach((item) => {
+            numberOfPlants += item.quantity;
+        });
+        return numberOfPlants;
+    };
+
+    const numberOfPlants = calculateNumberOfPlants();
+
+    const isItemAdded = (plant) => {
+        return cart.some(cartPlant => cartPlant.name === plant.name);
+    }
+
     return (
         <div>
             <div className="navbar" style={styleObj}>
@@ -259,7 +294,7 @@ function ProductList() {
                     <div className="luxury">
                         <img src="https://cdn.pixabay.com/photo/2020/08/05/13/12/eco-5465432_1280.png" alt="" />
                         <a href="/" style={{ textDecoration: 'none' }}>
-                            <div>
+                            <div style={{ padding: '15px' }}>
                                 <h3 style={{ color: 'white' }}>Paradise Nursery</h3>
                                 <i style={{ color: 'white' }}>Where Green Meets Serenity</i>
                             </div>
@@ -288,6 +323,12 @@ function ProductList() {
                                         stroke-linejoin="round"
                                         stroke-width="2"
                                         id="mainIconPathAttribute" />
+                                    <text x="50%" y="50%"
+                                        text-anchor="middle"
+                                        font-size="48"
+                                        fill="white">
+                                        {numberOfPlants}
+                                    </text>
                                 </svg>
                             </h1>
                         </a>
@@ -301,25 +342,27 @@ function ProductList() {
                             {
                                 plantsArray.map((plantsCategory, plantsCategoryIndex) =>
                                 (
-                                    /* style={{ padding: 15 }} */
                                     <div key={plantsCategoryIndex}>
                                         <h1><div className="product-list">{plantsCategory.category}</div></h1>
                                         <div className="product-list">
                                             {
-                                                plantsCategory.plants.map((plant, plantIndex) =>
-                                                (
-                                                    <div className="product-card" key={plantIndex}>
-                                                        <img className="product-image" src={plant.image} alt={plant.name} />
-                                                        <div className="product-title">{plant.name}</div>
-                                                        <div className="product-price">{plant.cost}</div>
-                                                        <div className="product-description">{plant.description}</div>
-                                                        <button
-                                                            className="product-button"
-                                                            onClick={() => handleAddToCart(plant)}>
-                                                            Add to Cart
-                                                        </button>
-                                                    </div>
-                                                ))
+                                                plantsCategory.plants.map((plant, plantIndex) => {
+                                                    const isAdded = isItemAdded(plant);
+                                                    return (
+                                                        <div className="product-card" key={plantIndex}>
+                                                            <img className="product-image" src={plant.image} alt={plant.name} />
+                                                            <div className="product-title">{plant.name}</div>
+                                                            <div className="product-price">{plant.cost}</div>
+                                                            <div className="product-description">{plant.description}</div>
+                                                            <button
+                                                                className={`product-button ${isAdded ? 'added-to-cart' : ''}`}
+                                                                onClick={() => handleAddToCart(plant)}
+                                                                disabled={isAdded}>
+                                                                {isAdded ? "Added to Cart" : "Add to Cart"}
+                                                            </button>
+                                                        </div>
+                                                    )
+                                                })
                                             }
                                         </div>
                                     </div>
