@@ -9,17 +9,14 @@ const CartItem = ({ onContinueShopping }) => {
 
   // Calculate total amount for all products in the cart
   const calculateTotalAmount = () => {
-    // let totalAmount = 0;
-    // // cart.items.foreach((item) => {
-    // //   totalAmount += item.quantity * item.cost;
-    // // });
-    // //return cart.reduce((acc, item) => acc + parseInt(item.quantity) * parseInt(item.cost), 0);
-    // cart.forEach((item) => {
-    //   totalAmount += item.quantity * item.cost;
-    // });
-
-    // return totalAmount;
+    let totalAmount = 0;
+    cart.forEach((item) => {
+      totalAmount += item.quantity * item.cost;
+    });
+    return totalAmount;
   };
+
+  const totalAmount = calculateTotalAmount();
 
   const handleContinueShopping = (e) => {
     onContinueShopping(e);
@@ -45,7 +42,7 @@ const CartItem = ({ onContinueShopping }) => {
 
   // Calculate total cost based on quantity for an item
   const calculateTotalCost = (item) => {
-    return parseInt(parseInt(item.quantity) * parseInt(item.cost));
+    return item.quantity * item.cost;
   };
 
   const handleCheckoutShopping = (e) => {
@@ -54,7 +51,7 @@ const CartItem = ({ onContinueShopping }) => {
 
   return (
     <div className="cart-container">
-      <h2 style={{ color: 'black' }}>Total Cart Amount: ${calculateTotalAmount()}</h2>
+      <h2 style={{ color: 'black' }}>Total Cart Amount: ${totalAmount}</h2>
       <div>
         {
           cart.map(item => (
@@ -62,7 +59,7 @@ const CartItem = ({ onContinueShopping }) => {
               <img className="cart-item-image" src={item.image} alt={item.name} />
               <div className="cart-item-details">
                 <div className="cart-item-name">{item.name}</div>
-                <div className="cart-item-cost">{item.cost}</div>
+                <div className="cart-item-cost">${item.cost}</div>
                 <div className="cart-item-quantity">
                   <button className="cart-item-button cart-item-button-dec" onClick={() => handleDecrement(item)}>-</button>
                   <span className="cart-item-quantity-value">{item.quantity}</span>
